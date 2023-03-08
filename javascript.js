@@ -7,7 +7,7 @@ const GameController = (() => {
 		return () => {
 			const play = (_counter % 2 === 0) ? "O" : "X"
 			_counter++;
-			return play;
+			return {play};
 		};
 	};
 	const turn = _whosTurn();
@@ -46,23 +46,33 @@ const GameController = (() => {
 		}
 
 	}
+
+	let _counter =0;
 	
 	// Get input from player and update array
-	const updateGame = function (area, e) {
+	const updateGame = function (area) {
 		// Prevent player from choosing an already filed area
 		if (_gameboard[area]){
 			return console.log("Choose a different area! this one is already taken.")
 		}
+
+		// To control for tie
+		_counter++;
+
 		// Update array
-		_gameboard[area] = turn();
+		_gameboard[area] = turn().play;
 		// Update display
 		_updateGameboard(area, _gameboard[area]);
-		console.log(_gameboard);		
+		// console.log(_gameboard);		
 
 		//CHECK IF THERE'S A WINNER
 		if (_checkWinnerRow() || _checkWinnerCol() || _checkWinnerDiag()) {
 			grid.removeEventListener('click', myFunction)
 			console.log(`And the winner is ${_gameboard[area]}`)
+		}
+		else if (_counter === 9) {
+			grid.removeEventListener('click', myFunction)
+			console.log("It's a tie!");
 		}
 	}
 
@@ -73,6 +83,7 @@ const GameController = (() => {
 			_gameboard[i] = "";
 		}
 		grid.addEventListener('click', myFunction);
+		_counter = 0;
 	} 
 
 	return {updateGame, reset, gameboard};
