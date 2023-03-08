@@ -1,74 +1,69 @@
-
-// Decide which turn it is
-const whoseTurn = () => {
-	let _counter = 0;
-
-	return () => {
-		_counter++;
-		return (_counter % 2 === 0) ? "O" : "X";
+const GameController = (() => {
+	const _gameboard = Array.apply(null, Array(9)).map(x => "");
+	const gameboard = () => {console.log(_gameboard)};
+	
+	const _whosTurn = () => {
+		let _counter = 0;
+		return () => {
+			const play = (_counter % 2 === 0) ? "O" : "X"
+			_counter++;
+			return play;
+		};
 	};
-};
+	const turn = _whosTurn();
 
-// Only deals with updating gameboard
-const Gameboard = (() => {
-	const _gameboard = Array.apply(null, Array(9)).map(function () {});
+	function _updateGameboard(area, content) {
+		let areaToUpdate = document.querySelector(`div[place="${area}"]`);
+			areaToUpdate.textContent = content;
+	}
 
-	// Array with the index of all empty slots in _gameboar
-	// const emptyAreas = _gameboard.map(area => {
-	// 	if (!area) {_gameboard.indexOf(searchElement, fromIndex?)}
-	// });
+	//Check winner WITHOUT USING HTML
+	function checkWinner() {
 
-
-	const turn = whoseTurn();
-
+		return;
+	}
+	
 	// Get input from player and update array
 	const updateGame = function (area) {
 		// Prevent player from choosing an already filed area
 		if (_gameboard[area]){
 			return console.log("Choose a different area! this one is already taken.")
 		}
-
 		// Update array
 		_gameboard[area] = turn();
 		// Update display
-		updateGameboard(area, _gameboard[area]);
+		_updateGameboard(area, _gameboard[area]);
 		console.log(_gameboard);
 
 		//CHECK IF THERE'S A WINNER
+
 	}
 
-	const resetGame = () => {
+	// Clean array and HTML
+	const reset = () => {
 		_gameboard.length = 0;
-	}
-	return {updateGame, resetGame};
+		for (let i = 0; i <=8; i++ ) {
+			_updateGameboard(i, "");
+		}
+	} 
+
+	return {updateGame, reset, gameboard};
 })();
 
 
-// Decides who's turn it is; checks if there's a winner, check if move is allowed
-const GameController = (() => {
 
-
-})();
-
-function updateGameboard(area, content) {
-	let areaToUpdate = document.querySelector(`div[place="${area}"]`);
-		areaToUpdate.textContent = content;
-}
 
 
 function myFunction(e) {
+	if (e.target.id === "reset") {
+		GameController.reset();
+		return
+	}
+
 	let area = e.target.getAttribute('place');
 	if (!area) {return}
-	Gameboard.updateGame(area);
+	GameController.updateGame(area);
 }
- 
-
-function reset() {
-	Gameboard.resetGame();
-	for (let i = 0; i <=8; i++ ) {
-		updateGameboard(i, "")
-	}
-} 
 
 const grid = document.querySelector(".grid");
 grid.addEventListener('click', myFunction);
@@ -76,12 +71,15 @@ grid.addEventListener('click', myFunction);
 
 // ADD RESET BUTTON
 const resetBtn = document.querySelector("#reset");
-resetBtn.addEventListener('click', reset);
+resetBtn.addEventListener('click', myFunction);
+
+
+
+
 
 
 // NOT SURE WHAT TO DO WITH THIS JUST YET
 const player = (name, xOrO) => {
 	return {name, xOrO};
 };
-
 
