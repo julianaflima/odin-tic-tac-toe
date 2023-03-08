@@ -18,13 +18,37 @@ const GameController = (() => {
 	}
 
 	//Check winner WITHOUT USING HTML
-	function checkWinner() {
+	function _checkWinnerRow() {
+		for (let i = 0; i < 7;){
+			if (_gameboard[i] === _gameboard[i+1] && _gameboard[i+1] === _gameboard[i+2] && _gameboard[i] !== "") {
+				return _gameboard[i];
+			}
+			i += 3;
+		}
+		return false;
+	}
 
-		return;
+	function _checkWinnerCol() {
+		for (let i = 0; i < 3; i++) {
+			if (_gameboard[i] === _gameboard[i+3] && _gameboard[i+3] === _gameboard[i + 6] && _gameboard[i] !== "") {
+				return _gameboard[i];
+			}
+		}
+	}
+
+	function _checkWinnerDiag() {
+		if (_gameboard[0] === _gameboard[4] && _gameboard[4] === _gameboard[8] && _gameboard[0] !== "") {
+			return _gameboard[0];
+		}
+
+		if (_gameboard[2] === _gameboard[4] && _gameboard[4] === _gameboard[6] && _gameboard[2] !== "") {
+			return _gameboard[2];
+		}
+
 	}
 	
 	// Get input from player and update array
-	const updateGame = function (area) {
+	const updateGame = function (area, e) {
 		// Prevent player from choosing an already filed area
 		if (_gameboard[area]){
 			return console.log("Choose a different area! this one is already taken.")
@@ -33,18 +57,22 @@ const GameController = (() => {
 		_gameboard[area] = turn();
 		// Update display
 		_updateGameboard(area, _gameboard[area]);
-		console.log(_gameboard);
+		console.log(_gameboard);		
 
 		//CHECK IF THERE'S A WINNER
-
+		if (_checkWinnerRow() || _checkWinnerCol() || _checkWinnerDiag()) {
+			grid.removeEventListener('click', myFunction)
+			console.log(`And the winner is ${_gameboard[area]}`)
+		}
 	}
 
 	// Clean array and HTML
 	const reset = () => {
-		_gameboard.length = 0;
 		for (let i = 0; i <=8; i++ ) {
 			_updateGameboard(i, "");
+			_gameboard[i] = "";
 		}
+		grid.addEventListener('click', myFunction);
 	} 
 
 	return {updateGame, reset, gameboard};
@@ -62,7 +90,7 @@ function myFunction(e) {
 
 	let area = e.target.getAttribute('place');
 	if (!area) {return}
-	GameController.updateGame(area);
+	GameController.updateGame(area, e);
 }
 
 const grid = document.querySelector(".grid");
