@@ -1,23 +1,15 @@
 const GameController = (() => {
 	const _gameboard = Array.apply(null, Array(9)).map(x => "");
-	const gameboard = () => {console.log(_gameboard)};
-	
-	const _whosTurn = () => {
-		let _counter = 0;
-		return () => {
-			const play = (_counter % 2 === 0) ? "O" : "X"
-			_counter++;
-			return {play};
-		};
-	};
-	const turn = _whosTurn();
+
+	const turnPara = document.querySelector('#turn-announce')
+	turnPara.textContent = "It's O's turn";
 
 	function _updateGameboard(area, content) {
 		let areaToUpdate = document.querySelector(`div[place="${area}"]`);
 			areaToUpdate.textContent = content;
 	}
 
-	//Check winner WITHOUT USING HTML
+	//Check winner of row, col, and diagonal using transitivity of identity
 	function _checkWinnerRow() {
 		for (let i = 0; i < 7;){
 			if (_gameboard[i] === _gameboard[i+1] && _gameboard[i+1] === _gameboard[i+2] && _gameboard[i] !== "") {
@@ -56,24 +48,29 @@ const GameController = (() => {
 			return console.log("Choose a different area! this one is already taken.")
 		}
 
-		// To control for tie
+		let sign = (_counter % 2 === 0) ? "O" : "X";
 		_counter++;
 
 		// Update array
-		_gameboard[area] = turn().play;
+		_gameboard[area] = sign;
 		// Update display
 		_updateGameboard(area, _gameboard[area]);
-		// console.log(_gameboard);		
 
 		//CHECK IF THERE'S A WINNER
 		if (_checkWinnerRow() || _checkWinnerCol() || _checkWinnerDiag()) {
 			grid.removeEventListener('click', myFunction)
-			console.log(`And the winner is ${_gameboard[area]}`)
+
+			// Display winner
+			turnPara.textContent = `And the winner is ${_gameboard[area]}!`;
+			return 
 		}
 		else if (_counter === 9) {
 			grid.removeEventListener('click', myFunction)
 			console.log("It's a tie!");
 		}
+
+		let nextSign = (_counter % 2 === 0) ? "O" : "X"
+		turnPara.textContent = `It's ${nextSign}'s turn`; 
 	}
 
 	// Clean array and HTML
@@ -84,13 +81,11 @@ const GameController = (() => {
 		}
 		grid.addEventListener('click', myFunction);
 		_counter = 0;
+		turnPara.textContent = "It's O's turn";
 	} 
 
-	return {updateGame, reset, gameboard};
+	return {updateGame, reset};
 })();
-
-
-
 
 
 function myFunction(e) {
@@ -101,7 +96,7 @@ function myFunction(e) {
 
 	let area = e.target.getAttribute('place');
 	if (!area) {return}
-	GameController.updateGame(area, e);
+	console.log(GameController.updateGame(area));
 }
 
 const grid = document.querySelector(".grid");
