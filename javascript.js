@@ -1,13 +1,31 @@
-const GameController = (() => {
-	const _gameboard = Array.apply(null, Array(9)).map(x => "");
+// Gameboard function controls what is displayed on the board.
+// To get it to work properly, you need to input selector of the element that will display the turns and announce the winner.
+// The line to input the selector is at the end
+const Gameboard = (selector) => {
 
-	const turnPara = document.querySelector('#turn-announce')
-	turnPara.textContent = "It's O's turn";
+	let selectorAnnounce = document.querySelector(selector);
 
-	function _updateGameboard(area, content) {
+	function updateTurn(content) {
+		selectorAnnounce.textContent = `It's ${content}'s turn.`;
+	}
+
+	function announceWinner(content) {
+		selectorAnnounce.textContent = `And the winner is ${content}!`;
+	}
+
+	function updateGrid(area, content) {
 		let areaToUpdate = document.querySelector(`div[place="${area}"]`);
 			areaToUpdate.textContent = content;
 	}
+
+	return {updateTurn, updateGrid, announceWinner}
+}
+
+
+// This function initializes and controls the game
+const GameController = () => {
+	setGameboard.updateTurn("O");
+	const _gameboard = Array.apply(null, Array(9)).map(x => "");
 
 	//Check winner of row, col, and diagonal using transitivity of identity
 	function _checkWinnerRow() {
@@ -44,8 +62,10 @@ const GameController = (() => {
 	// Get input from player and update array
 	const updateGame = function (area) {
 		// Prevent player from choosing an already filed area
-		if (_gameboard[area]){
-			return console.log("Choose a different area! this one is already taken.")
+		if (_gameboard[area] !== ""){
+			// console.log(_gameboard);
+			console.log("Choose a different area! this one is already taken.")
+			return 
 		}
 
 		let sign = (_counter % 2 === 0) ? "O" : "X";
@@ -53,15 +73,15 @@ const GameController = (() => {
 
 		// Update array
 		_gameboard[area] = sign;
-		// Update display
-		_updateGameboard(area, _gameboard[area]);
+		// Update Gameboard grid
+		setGameboard.updateGrid(area, sign);
 
 		//CHECK IF THERE'S A WINNER
 		if (_checkWinnerRow() || _checkWinnerCol() || _checkWinnerDiag()) {
 			grid.removeEventListener('click', myFunction)
 
 			// Display winner
-			turnPara.textContent = `And the winner is ${_gameboard[area]}!`;
+			setGameboard.announceWinner(sign);
 			return 
 		}
 		else if (_counter === 9) {
@@ -70,50 +90,59 @@ const GameController = (() => {
 		}
 
 		let nextSign = (_counter % 2 === 0) ? "O" : "X"
-		turnPara.textContent = `It's ${nextSign}'s turn`; 
+		setGameboard.updateTurn(nextSign);
+
+		return sign;
 	}
 
 	// Clean array and HTML
 	const reset = () => {
 		for (let i = 0; i <=8; i++ ) {
-			_updateGameboard(i, "");
+			setGameboard.updateGrid(i, "");
 			_gameboard[i] = "";
 		}
 		grid.addEventListener('click', myFunction);
 		_counter = 0;
-		turnPara.textContent = "It's O's turn";
+		setGameboard.updateTurn("O");
 	} 
 
 	return {updateGame, reset};
-})();
+}
+
+
+
 
 
 function myFunction(e) {
 	if (e.target.id === "reset") {
-		GameController.reset();
+		setGameController.reset();
 		return
+	}
+
+	if (e.target.id === "start") {
+		// Begin game
+		setGameController = GameController();
+
+		// Maake reset button to function
+
 	}
 
 	let area = e.target.getAttribute('place');
 	if (!area) {return}
-	console.log(GameController.updateGame(area));
+		setGameController.updateGame(area);
 }
 
 const grid = document.querySelector(".grid");
 grid.addEventListener('click', myFunction);
 
-
-// ADD RESET BUTTON
 const resetBtn = document.querySelector("#reset");
 resetBtn.addEventListener('click', myFunction);
 
 
 
+// This determines the div that will display turns and the winner
+const setGameboard = Gameboard("#turn-announce");
 
-
-
-// NOT SURE WHAT TO DO WITH THIS JUST YET
-const player = (name, xOrO) => {
-	return {name, xOrO};
-};
+// This begins the game
+let setGameController = GameController();
 
