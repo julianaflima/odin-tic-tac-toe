@@ -5,6 +5,10 @@
 	flex-flow: column;
 }
 
+#turn-announce {
+	height: 20px;
+}
+
 .grid {
 	display: grid;
 	/*background-color: lightgreen;*/
